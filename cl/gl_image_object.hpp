@@ -21,7 +21,7 @@ private:
 	GLuint _texture;
 	
 public:
-	gl_image_object(cl_context context) throw(exception)
+	gl_image_object(cl_context context, int width, int height) throw(exception)
 	{
 		cl_int err;
 		// Create shared image 
@@ -51,8 +51,8 @@ public:
 		if(_image == nullptr)
 			throw exception("Failed to create OpenGL texture reference");
 	}
-	gl_image_object(context c_context) throw(exception)
-	  : gl_image_object(c_context.get_cl_context())
+	gl_image_object(context c_context, int width, int height) throw(exception)
+	  : gl_image_object(c_context.get_cl_context(),width,height)
 	{
 		
 	}

@@ -2,7 +2,6 @@
 
 #include <CL/cl.h>
 
-#include "globals.hpp"
 #include "exception.hpp"
 #include "queue.hpp"
 #include "memory_object.hpp"

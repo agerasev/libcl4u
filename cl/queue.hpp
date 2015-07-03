@@ -2,7 +2,6 @@
 
 #include <CL/cl.h>
 
-#include "globals.hpp"
 #include "context.hpp"
 
 namespace cl

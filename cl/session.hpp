@@ -4,8 +4,6 @@
 
 #include <CL/cl.h>
 
-#include "globals.hpp"
-
 #include "exception.hpp"
 #include "platform.hpp"
 #include "context.hpp"
