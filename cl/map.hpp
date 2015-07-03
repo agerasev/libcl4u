@@ -5,56 +5,158 @@
 
 #include "exception.hpp"
 
+namespace cl
+{
 template <typename T>
 class map
 {
+public:
+	typedef std::map<std::string,T> map_type;
+	typedef std::pair<std::string,T> pair_type;
+	
 private:
-	typedef std::map<std::string,T> imap;
-	typedef std::pair<std::string,T> ipair;
-	imap _map;
+	map_type _map;
 	
 public:
 	map() {}
 	~map() {}
 	
-	typename imap::iterator begin()
+	class iterator
 	{
-		return _map.begin();
+	private:
+		typename map_type::iterator iter;
+		
+	public:
+		iterator(const typename map_type::iterator &i)
+		  : iter(i)
+		{
+			
+		}
+		
+		bool operator != (const iterator &i) const
+		{
+			return iter != i.iter;
+		}
+		
+		bool operator == (const iterator &i) const
+		{
+			return iter == i.iter;
+		}
+		
+		iterator &operator ++ ()
+		{
+			++iter;
+			return *this;
+		}
+		
+		T &operator *()
+		{
+			return iter->second;
+		}
+		
+		T &operator -> ()
+		{
+			return iter->second;
+		}
+		
+		const T &operator *() const
+		{
+			return iter->second;
+		}
+		
+		const T &operator -> () const
+		{
+			return iter->second;
+		}
+	};
+	
+	class const_iterator
+	{
+	private:
+		typename map_type::const_iterator iter;
+		
+	public:
+		const_iterator(const typename map_type::const_iterator &i)
+		  : iter(i)
+		{
+			
+		}
+		
+		bool operator != (const const_iterator &i) const
+		{
+			return iter != i.iter;
+		}
+		
+		bool operator == (const const_iterator &i) const
+		{
+			return iter == i.iter;
+		}
+		
+		const_iterator &operator ++ ()
+		{
+			++iter;
+			return *this;
+		}
+		
+		const T &operator *() const
+		{
+			return iter->second;
+		}
+		
+		const T &operator -> () const
+		{
+			return iter->second;
+		}
+	};
+	
+	iterator begin()
+	{
+		return iterator(_map.begin());
 	}
 	
-	typename imap::const_iterator begin() const
+	const_iterator begin() const
 	{
-		return _map.cbegin();
+		return const_iterator(_map.cbegin());
 	}
 	
-	typename imap::iterator end()
+	const_iterator cbegin() const
 	{
-		return _map.end();
+		return begin();
 	}
 	
-	typename imap::const_iterator end() const
+	iterator end()
 	{
-		return _map.cend();
+		return iterator(_map.end());
+	}
+	
+	const_iterator end() const
+	{
+		return const_iterator(_map.cend());
+	}
+	
+	const_iterator cend() const
+	{
+		return end();
 	}
 	
 	void insert(const std::string &key, T elem)
 	{
-		_map.insert(ipair(key,elem));
+		_map.insert(pair_type(key,elem));
 	}
 	
-	void insert(const ipair &pair)
+	void insert(const pair_type &pair)
 	{
 		_map.insert(pair);
 	}
 	
-	typename imap::iterator find(const std::string &key)
+	iterator find(const std::string &key)
 	{
-		return _map.find(key);
+		return iterator(_map.find(key));
 	}
 	
-	typename imap::const_iterator find(const std::string &key) const
+	const_iterator find(const std::string &key) const
 	{
-		return _map.find(key);
+		return const_iterator(_map.find(key));
 	}
 	
 	void remove(const std::string &key)
@@ -62,23 +164,24 @@ public:
 		_map.erase(_map.find(key));
 	}
 	
-	T operator [](const std::string &key) throw(cl::exception)
+	T &operator [](const std::string &key) throw(cl::exception)
 	{
 		auto iter = find(key);
 		if(iter == end())
 		{
 			throw cl::exception((std::string("there is no object '") + key + std::string("' in map")).data());
 		}
-		return iter->second;
+		return *iter;
 	}
 	
-	const T operator [](const std::string &key) const throw(cl::exception)
+	const T &operator [](const std::string &key) const throw(cl::exception)
 	{
 		auto iter = find(key);
 		if(iter == end())
 		{
 			throw cl::exception(std::string("there is no object '") + key + std::string("' in map"));
 		}
-		return iter->second;
+		return *iter;
 	}
 };
+}

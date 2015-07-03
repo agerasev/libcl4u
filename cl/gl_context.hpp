@@ -4,6 +4,8 @@
 
 #ifdef CL_GL_INTEROP
 
+#include <CL/cl_gl.h>
+
 #ifdef __gnu_linux__
 #include <GL/glx.h>
 #endif

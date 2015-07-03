@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include <CL/cl.h>
 
 #include "globals.hpp"
@@ -11,6 +13,9 @@
 #include "gl_context.hpp"
 #endif
 #include "queue.hpp"
+
+#include "kernel.hpp"
+#include "buffer_object.hpp"
 
 namespace cl
 {

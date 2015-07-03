@@ -5,8 +5,11 @@
 #include "globals.hpp"
 #include "exception.hpp"
 #include "queue.hpp"
-#include "buffer_object.hpp"
+#include "memory_object.hpp"
 #include "work_range.hpp"
+
+#include <list>
+#include <type_traits>
 
 #include <cstdio>
 #include <string>
@@ -22,25 +25,29 @@ private:
 	cl_event _event;
 	cl_command_queue _queue = 0;
 	
-	void set_mem_arg(cl_uint pos, cl_mem mem) throw(exception)
+	struct unroll_data
 	{
-		cl_int ret;
-		ret = clSetKernelArg(_kernel,pos,sizeof(cl_mem),reinterpret_cast<void*>(&mem));
-		if(ret != CL_SUCCESS)
-		{
-			throw cl_exception("clSetKernelArg",ret);
-		}
-	}
+		std::list<memory_object*> lock_list;
+		int arg_count;
+	};
 	
 	template <typename T>
-	void set_var_arg(cl_uint pos, T var) throw(exception)
+	typename std::enable_if<!std::is_convertible<T,memory_object*>::value,void>::type 
+	  set_arg(cl_uint pos, unroll_data &data, T var)
 	{
 		cl_int ret;
 		ret = clSetKernelArg(_kernel,pos,sizeof(T),reinterpret_cast<void*>(&var));
 		if(ret != CL_SUCCESS)
-		{
 			throw cl_exception("clSetKernelArg",ret);
-		}
+	}
+	
+	template <typename T>
+	typename std::enable_if<std::is_convertible<T,memory_object*>::value,void>::type 
+	  set_arg(cl_uint pos, unroll_data &data, T var)
+	{
+		memory_object *mem_obj = static_cast<memory_object*>(var);
+		data.lock_list.push_back(mem_obj);
+		set_arg(pos,data,mem_obj->get_cl_mem());
 	}
 	
 	void check_args_count(cl_uint count) throw(exception)
@@ -53,43 +60,17 @@ private:
 		}
 	}
 	
-	template <typename ... Args>
-	static void unroll_args(kernel *self, cl_uint count, buffer_object *buf_obj, Args ... args) throw(exception)
-	{
-		self->set_mem_arg(count,buf_obj->get_cl_mem());
-		unroll_args(self,count+1,args...);
-	}
-	
-	template <typename ... Args>
-	static void unroll_args(kernel *self, cl_uint count, cl_mem mem, Args ... args) throw(exception)
-	{
-		self->set_mem_arg(count,mem);
-		unroll_args(self,count+1,args...);
-	}
-	
 	template <typename T, typename ... Args>
-	static void unroll_args(kernel *self, cl_uint count, T var, Args ... args) throw(exception)
+	static void unroll_args(kernel *self, cl_uint count, unroll_data &data, T var, Args ... args) throw(exception)
 	{
-		self->set_var_arg(count,var);
-		unroll_args(self,count+1,args...);
-	}
-	
-	static void unroll_args(kernel *self, cl_uint count, buffer_object *buf_obj) throw(exception)
-	{
-		self->set_mem_arg(count,buf_obj->get_cl_mem());
-		self->check_args_count(count+1);
-	}
-	
-	static void unroll_args(kernel *self, cl_uint count, cl_mem mem) throw(exception)
-	{
-		self->set_mem_arg(count,mem);
-		self->check_args_count(count+1);
+		self->set_arg(count,data,var);
+		unroll_args(self,count+1,data,args...);
 	}
 	
 	template <typename T>
-	static void unroll_args(kernel *self, cl_uint count, T var) throw(exception)
+	static void unroll_args(kernel *self, cl_uint count, unroll_data &data, T var) throw(exception)
 	{
-		self->set_var_arg(count,var);
+		self->set_arg(count,data,var);
 		self->check_args_count(count+1);
 	}
 	
@@ -142,7 +123,7 @@ public:
 	}
 	
 	template <typename ... Args>
-	void evaluate(const work_range &range, Args ... args) throw(exception)
+	kernel *evaluate(const work_range &range, Args ... args) throw(exception)
 	{
 		cl_int ret;
 		if(_queue == 0)
@@ -152,7 +133,11 @@ public:
 			throw exception(strbuf);
 		}
 		
-		unroll_args(this,0,args...);
+		unroll_data data;
+		unroll_args(this,0,data,args...);
+		for(memory_object *mo : data.lock_list)
+			mo->acquire();
+		
 		ret = 
 			clEnqueueNDRangeKernel(
 				_queue,_kernel,
@@ -160,8 +145,14 @@ public:
 				range.get_global_size(),range.get_local_size(),
 				0,NULL,&_event
 			);
+		
+		for(memory_object *mo : data.lock_list)
+			mo->release();
+		
 		if(ret != CL_SUCCESS)
 			throw cl_exception("clEnqueueNDRangeKernel",ret);
+		
+		return this;
 	}
 	
 	cl_ulong measure_time()
@@ -173,6 +164,11 @@ public:
 		clGetEventProfilingInfo(_event, CL_PROFILING_COMMAND_END, sizeof(time_end), &time_end, NULL);
 		
 		return time_end - time_start;
+	}
+	
+	void print_time()
+	{
+		printf("%s exec time: %0.3f ms\n",get_name(),measure_time()/1000000.0);
 	}
 };
 }

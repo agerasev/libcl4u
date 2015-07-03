@@ -22,6 +22,12 @@ public:
 		
 	}
 	
+	exception(const std::string &message) noexcept
+	  : msg(message)
+	{
+		
+	}
+	
 	const char *get_message() const noexcept
 	{
 		return msg.data();
