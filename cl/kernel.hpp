@@ -167,7 +167,7 @@ public:
 	
 	void print_time()
 	{
-		printf("%s exec time: %0.3f ms\n",get_name(),measure_time()/1000000.0);
+		printf("%s: %0.3f ms\n",get_name(),measure_time()/1000000.0);
 	}
 };
 }

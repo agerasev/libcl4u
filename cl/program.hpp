@@ -159,5 +159,13 @@ public:
 	{
 		return _kernel_map[kname];
 	}
+	
+	void bind_queue(cl_command_queue queue)
+	{
+		for(kernel *k : _kernel_map)
+		{
+			k->bind_queue(queue);
+		}
+	}
 };
 }

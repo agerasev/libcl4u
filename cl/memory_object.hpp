@@ -11,6 +11,7 @@ public:
 	virtual ~memory_object() = default;
 	
 	virtual void bind_queue(cl_command_queue queue) = 0;
+	virtual cl_command_queue get_queue() const = 0;
 	
 	virtual cl_mem get_cl_mem() const = 0;
 	virtual void acquire() = 0;
