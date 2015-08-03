@@ -1,8 +1,4 @@
-#pragma once
-
-#include <CL/cl.h>
-
-#include <string>
+#include <cl/utility.hpp>
 
 #define __RET_CASE(err) \
 case err: return #err;
@@ -59,3 +55,4 @@ const char *get_code_name(cl_int err)
 	default: return "UNKNOWN_RETURN_CODE";
 	}
 }
+
