@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(libcl4u)
+project(cl4u)
 
 include_directories(include)
 
