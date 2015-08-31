@@ -1,13 +1,10 @@
 #pragma once
 
 #include <CL/cl.h>
-#include <cmath>
 
+#include <vector>
 #include <initializer_list>
-
-#define WORK_SIZE_1D 64//256
-#define WORK_SIZE_2D 8//16
-#define WORK_SIZE_3D 4//8
+#include <type_traits>
 
 namespace cl
 {
@@ -15,83 +12,84 @@ class work_range
 {
 private:
 	size_t dim;
-	size_t *offset;
-	size_t *global_size;
-	size_t *local_size;
+	std::vector<size_t> offset;
+	std::vector<size_t> global_size;
+	std::vector<size_t> local_size;
 	
-	void init(std::initializer_list<size_t> size_list)
+	void init(size_t dim);
+	void set_global_size(const size_t *data);
+	void create(std::vector<size_t> &vec);
+	template <typename T>
+	void create(std::initializer_list<T> list)
 	{
-		dim = size_list.size();
-		offset = new size_t[dim];
-		global_size = new size_t[dim];
-		local_size = new size_t[dim];
-		size_t lsize = 1;
-		switch(dim)
+		static_assert(std::is_integral<T>::value, "initializer list components must be an integral type");
+		std::vector<size_t> vec;
+		for(T n : list)
 		{
-		case 1:
-			lsize = WORK_SIZE_1D;
-			break;
-		case 2:
-			lsize = WORK_SIZE_2D;
-			break;
-		case 3:
-			lsize = WORK_SIZE_3D;
-			break;
+			vec.push_back(static_cast<size_t>(n));
 		}
-
-		auto list_iter = size_list.begin();
-		for(unsigned i = 0; i < dim; ++i)
-		{
-			offset[i] = 0;
-			local_size[i] = lsize;
-			global_size[i] = size_t(ceil(double(*list_iter)/local_size[i]))*local_size[i];
-			++list_iter;
-		}
+		create(vec);
 	}
 	
-	void deinit()
+	template <typename T>
+	void append(std::vector<size_t> &vec, T arg)
 	{
-		delete[] offset;
-		delete[] global_size;
-		delete[] local_size;
+		static_assert(std::is_integral<T>::value, "argument must be an integral type");
+		vec.push_back(static_cast<size_t>(arg));
+	}
+	
+	template <typename T>
+	void unroll(std::vector<size_t> &vec, T arg)
+	{
+		append(vec, arg);
+	}
+	
+	template <typename T, typename ... Args>
+	void unroll(std::vector<size_t> &vec, T arg, Args ... args)
+	{
+		append(vec, arg);
+		unroll(vec, args ...);
+	}
+	
+	template <typename T, typename ... Args>
+	typename std::enable_if<!std::is_integral<T>::value, void>::type 
+	  probe(T var)
+	{
+		create(var);
+	}
+	
+	template <typename T, typename ... Args>
+	typename std::enable_if<std::is_integral<T>::value, void>::type
+	  probe(T var)
+	{
+		std::vector<size_t> vec;
+		unroll(vec, var);
+		create(vec);
+	}
+	
+	template <typename T, typename ... Args>
+	void probe(T var, Args ... args)
+	{
+		std::vector<size_t> vec;
+		unroll(vec, var, args ...);
+		create(vec);
 	}
 	
 public:
-	work_range(std::initializer_list<size_t> size_list)
+	template <typename ... Args>
+	work_range(Args ... args)
 	{
-		init(size_list);
+		probe(args ...);
 	}
 	
-	virtual ~work_range()
-	{
-		deinit();
-	}
+	work_range(const work_range &range) = default;
+	~work_range() = default;
 	
-	work_range &operator = (std::initializer_list<size_t> size_list)
-	{
-		deinit();
-		init(size_list);
-		return *this;
-	}
+	work_range &operator = (const work_range &range) = default;
 	
-	size_t get_dim() const
-	{
-		return dim;
-	}
-	
-	const size_t *get_offset() const
-	{
-		return offset;
-	}
-	
-	const size_t *get_global_size() const
-	{
-		return global_size;
-	}
-	
-	const size_t *get_local_size() const
-	{
-		return local_size;
-	}
+	size_t get_dim() const;
+	const std::vector<size_t> &get_offset() const;
+	const std::vector<size_t> &get_global_size() const;
+	const std::vector<size_t> &get_local_size() const;
 };
 }

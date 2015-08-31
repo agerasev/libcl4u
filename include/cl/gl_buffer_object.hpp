@@ -61,7 +61,7 @@ public:
 		return _gl_buffer_id;
 	}
 	
-	virtual void acquire() override
+	virtual void acquire() const override
 	{
 		if(get_queue() == 0)
 			throw exception("GL Image hasn't bound to a valid queue");
@@ -69,7 +69,7 @@ public:
 		clEnqueueAcquireGLObjects(get_queue(), 1, &mem, 0, 0, 0);
 	}
 
-	virtual void release() override
+	virtual void release() const override
 	{
 		if(get_queue() == 0)
 			throw exception("GL Image hasn't bound to a valid queue");
