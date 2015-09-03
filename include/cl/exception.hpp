@@ -30,6 +30,7 @@ private:
 	
 public:
 	cl_exception(const char *func_name, cl_int error_code) noexcept;
+	cl_exception(const std::string &func_name, cl_int error_code) noexcept;
 	cl_int get_code() const noexcept;
 	const char *get_func_name() noexcept;
 };

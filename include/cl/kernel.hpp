@@ -25,6 +25,7 @@ private:
 	
 	struct unroll_data
 	{
+		std::string kernel_name;
 		std::list<const memory_object *> lock_list;
 		int arg_count;
 	};
@@ -36,7 +37,7 @@ private:
 		cl_int ret;
 		ret = clSetKernelArg(_kernel,pos,sizeof(T),reinterpret_cast<void*>(&var));
 		if(ret != CL_SUCCESS)
-			throw cl_exception("clSetKernelArg",ret);
+			throw cl_exception("clSetKernelArg(" + data.kernel_name + "," + std::to_string(int(pos)) + ")", ret);
 	}
 	
 	template <typename T>
@@ -87,6 +88,7 @@ public:
 		}
 		
 		unroll_data data;
+		data.kernel_name = get_name();
 		unroll_args(this,0,data,args...);
 		for(const memory_object *mo : data.lock_list)
 			mo->acquire();

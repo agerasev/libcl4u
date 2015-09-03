@@ -24,7 +24,13 @@ const char *cl::exception::what() const noexcept
 }
 
 cl::cl_exception::cl_exception(const char *func_name, cl_int error_code) noexcept
-	: exception(((std::string(func_name) + " : ") + get_code_name(error_code)).data()), 
+  : cl_exception(std::string(func_name), error_code)
+{
+	
+}
+
+cl::cl_exception::cl_exception(const std::string &func_name, cl_int error_code) noexcept
+  : exception(((func_name + " : ") + get_code_name(error_code)).data()), 
 		ret(error_code), func(func_name)
 {
 	
