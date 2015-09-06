@@ -3,7 +3,7 @@
 cl::queue::queue(cl_context __context, cl_device_id __device_id) throw(cl_exception)
 {
 	cl_int err;
-#ifdef CL_PROFILING
+#ifndef CL4U_NO_PROFILING
 	_queue = clCreateCommandQueue(__context, __device_id, CL_QUEUE_PROFILING_ENABLE, &err);
 #else
 	_queue = clCreateCommandQueue(__context, __device_id, 0, &err);

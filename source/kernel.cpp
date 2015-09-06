@@ -59,6 +59,8 @@ void cl::kernel::bind_queue(const queue &__queue)
 	bind_queue(__queue.get_cl_command_queue());
 }
 
+#ifndef CL4U_NO_PROFILING
+
 cl_ulong cl::kernel::measure_time()
 {
 	cl_ulong time_start, time_end;
@@ -70,7 +72,14 @@ cl_ulong cl::kernel::measure_time()
 	return time_end - time_start;
 }
 
-void cl::kernel::print_time()
+cl_ulong cl::kernel::get_time() const
 {
-	printf("%s: %0.3f ms\n",get_name(),measure_time()/1000000.0);
+	return _time;
 }
+
+void cl::kernel::clear_time()
+{
+	_time = 0;
+}
+
+#endif // CL4U_NO_PROFILING

@@ -23,6 +23,10 @@ private:
 	cl_event _event;
 	cl_command_queue _queue = 0;
 	
+#ifndef CL4U_NO_PROFILING
+	cl_ulong _time = 0;
+#endif // CL4U_NO_PROFILING
+	
 	struct unroll_data
 	{
 		std::string kernel_name;
@@ -64,6 +68,15 @@ private:
 		self->set_arg(count,data,var);
 		self->check_args_count(count+1);
 	}
+	
+#ifndef CL4U_NO_PROFILING
+private:
+	cl_ulong measure_time();
+	
+public:
+	cl_ulong get_time() const;
+	void clear_time();
+#endif // CL4U_NO_PROFILING
 	
 public:
 	kernel(cl_program program, const std::string &name) throw(cl::exception);
@@ -107,10 +120,11 @@ public:
 		if(ret != CL_SUCCESS)
 			throw cl_exception("clEnqueueNDRangeKernel",ret);
 		
+#ifndef CL4U_NO_PROFILING
+		_time += measure_time();
+#endif // CL4U_NO_PROFILING
+		
 		return this;
 	}
-	
-	cl_ulong measure_time();
-	void print_time();
 };
 }
