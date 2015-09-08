@@ -17,7 +17,7 @@ private:
 	std::vector<size_t> local_size;
 	
 	void init(size_t dim);
-	void set_global_size(const size_t *data);
+	
 	void create(std::vector<size_t> &vec);
 	template <typename T>
 	void create(std::initializer_list<T> list)
@@ -91,5 +91,9 @@ public:
 	const std::vector<size_t> &get_offset() const;
 	const std::vector<size_t> &get_global_size() const;
 	const std::vector<size_t> &get_local_size() const;
+	
+	void set_offset(const size_t *data);
+	void set_global_size(const size_t *data);
+	void set_local_size(const size_t *data);
 };
 }

@@ -69,6 +69,9 @@ private:
 		self->check_args_count(count+1);
 	}
 	
+	void check_range(const work_range &range) const;
+	void determine_range(work_range &range) const;
+	
 #ifndef CL4U_NO_PROFILING
 private:
 	cl_ulong measure_time();
@@ -89,8 +92,11 @@ public:
 	void bind_queue(cl_command_queue __queue);
 	void bind_queue(const queue &__queue);
 	
+	size_t get_work_group_size() const;
+	size_t get_work_group_multiple() const;
+	
 	template <typename ... Args>
-	kernel *evaluate(const work_range &range, Args ... args) throw(exception)
+	kernel *evaluate(work_range range, Args ... args) throw(exception)
 	{
 		cl_int ret;
 		if(_queue == 0)
@@ -99,6 +105,9 @@ public:
 			snprintf(strbuf,0xff,"kernel '%s' wasn't attached to a valid command queue",_name.data());
 			throw exception(strbuf);
 		}
+		
+		check_range(range);
+		determine_range(range);
 		
 		unroll_data data;
 		data.kernel_name = get_name();
