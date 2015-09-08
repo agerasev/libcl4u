@@ -104,62 +104,18 @@ void cl::kernel::check_range(const work_range &range) const
 
 void cl::kernel::determine_range(work_range &range) const
 {
+	static const size_t def_size[] = {32, 8, 4, 2};
 	int dim = range.get_dim();
 	std::vector<size_t> wg = range.get_local_size();
 	std::vector<size_t> gs = range.get_global_size();
 	
-	// determine work group size unless it specified
-	size_t n = get_work_group_size();
-	size_t d = 1;
-	int fd = 0;
 	for(int i = 0; i < dim; ++i)
 	{
-		if(wg[i] > 0)
+		if(wg[i] == 0)
 		{
-			++fd;
-			d *= wg[i];
+			wg[i] = def_size[dim < 3 ? dim : 3];
 		}
 	}
-	
-	fd = dim - fd;
-	if(fd)
-	{
-		size_t q = round(pow(double(n)/d, 1.0/fd));
-		
-		size_t qg = 1;
-		do
-		{
-			for(int i = 0; i < fd; ++i)
-				qg *= q;
-		}
-		while(qg*d > n && (qg = 1, --q));
-		
-		for(int i = 0; i < dim; ++i)
-			if(wg[i] == 0) wg[i] = q;
-	}
-	
-	// minimize size set preferred multiple 
-	//size_t m = get_work_group_multiple();
-	for(int i = 0; i < dim; ++i)
-	{
-		if(gs[i] < wg[i])
-		{
-			wg[i] = gs[i];
-		}
-	}
-	/*
-	if(dim == 1)
-	{
-		wg[0] = ((wg[0] - 1)/m + 1)*m;
-	}
-	*/
-	
-	/*
-	printf("local size = {");
-	for(int i = 0; i < dim; ++i)
-		printf("%ld, ", wg[i]);
-	printf("}\n");
-	*/
 	
 	range.set_local_size(wg.data());
 	
@@ -169,16 +125,7 @@ void cl::kernel::determine_range(work_range &range) const
 		gs[i] = ceil(double(gs[i])/wg[i])*wg[i];
 	}
 	
-	/*
-	printf("global size = {");
-	for(int i = 0; i < dim; ++i)
-		printf("%ld, ", gs[i]);
-	printf("}\n");
-	*/
-	
 	range.set_global_size(gs.data());
-	
-	//fflush(stdout);
 }
 
 #ifndef CL4U_NO_PROFILING
