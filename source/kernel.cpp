@@ -1,6 +1,7 @@
 #include <cl/kernel.hpp>
 
 #include <cstdio>
+#include <cmath>
 
 void cl::kernel::check_args_count(cl_uint count) throw(exception)
 {
@@ -57,6 +58,74 @@ void cl::kernel::bind_queue(cl_command_queue __queue)
 void cl::kernel::bind_queue(const queue &__queue)
 {
 	bind_queue(__queue.get_cl_command_queue());
+}
+
+size_t cl::kernel::get_work_group_size() const
+{
+	cl_int ret;
+	size_t value;
+	ret = clGetKernelWorkGroupInfo(
+	      _kernel, 0, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &value, NULL
+	      );
+	if(ret != CL_SUCCESS) 
+		throw cl_exception("clGetKernelWorkGroupInfo",ret);
+	return value;
+}
+
+size_t cl::kernel::get_work_group_multiple() const
+{
+	cl_int ret;
+	size_t value;
+	ret = clGetKernelWorkGroupInfo(
+	      _kernel, 0, CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, sizeof(size_t), &value, NULL
+	      );
+	if(ret != CL_SUCCESS)
+		throw cl_exception("clGetKernelWorkGroupInfo",ret);
+	return value;
+}
+
+void cl::kernel::check_range(const work_range &range) const
+{
+	// check local size
+	size_t max_size = get_work_group_size();
+	size_t size = 1;
+	for(size_t n : range.get_local_size())
+	{
+		size *= n;
+	}
+	if(size > max_size)
+		throw(cl::exception("local size > max local size = " + std::to_string(max_size)));
+	
+	// check global size
+	for(size_t n : range.get_global_size())
+		if(n == 0)
+			throw(cl::exception("global size component == 0"));
+}
+
+void cl::kernel::determine_range(work_range &range) const
+{
+	static const size_t def_size[] = {32, 8, 4, 2};
+	int dim = range.get_dim();
+	std::vector<size_t> wg = range.get_local_size();
+	std::vector<size_t> gs = range.get_global_size();
+	
+	for(int i = 0; i < dim; ++i)
+	{
+		if(wg[i] == 0)
+		{
+			wg[i] = def_size[dim < 3 ? dim : 3];
+		}
+	}
+	
+	range.set_local_size(wg.data());
+	
+	// ceil global size to be multiple of work group
+	for(int i = 0; i < dim; ++i)
+	{
+		gs[i] = ceil(double(gs[i])/wg[i])*wg[i];
+	}
+	
+	range.set_global_size(gs.data());
 }
 
 #ifndef CL4U_NO_PROFILING
