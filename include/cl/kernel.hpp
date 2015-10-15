@@ -24,6 +24,7 @@ private:
 	cl_command_queue _queue = 0;
 	
 #ifndef CL4U_NO_PROFILING
+	cl_uint _count = 0;
 	cl_ulong _time = 0;
 #endif // CL4U_NO_PROFILING
 	
@@ -75,7 +76,8 @@ private:
 	
 public:
 	cl_ulong get_time() const;
-	void clear_time();
+	cl_uint get_count() const;
+	void clear_counter();
 #endif // CL4U_NO_PROFILING
 	
 public:
@@ -121,6 +123,7 @@ public:
 			throw cl_exception("clEnqueueNDRangeKernel",ret);
 		
 #ifndef CL4U_NO_PROFILING
+		++_count;
 		_time += measure_time();
 #endif // CL4U_NO_PROFILING
 		

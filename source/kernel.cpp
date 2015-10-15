@@ -72,13 +72,19 @@ cl_ulong cl::kernel::measure_time()
 	return time_end - time_start;
 }
 
+cl_uint cl::kernel::get_count() const
+{
+	return _count;
+}
+
 cl_ulong cl::kernel::get_time() const
 {
 	return _time;
 }
 
-void cl::kernel::clear_time()
+void cl::kernel::clear_counter()
 {
+	_count = 0;
 	_time = 0;
 }
 
