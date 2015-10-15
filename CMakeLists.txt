@@ -10,9 +10,7 @@ endif()
 
 include_directories(include)
 
-find_package(OpenCL)
-if(OPENCL_FOUND)
-	include_directories(include ${OPENCL_INCLUDE_DIRS})
+if(OPENCL)
 	set(SOURCE 
 		source/utility.cpp
 		source/exception.cpp
@@ -26,4 +24,5 @@ if(OPENCL_FOUND)
 		source/proto_buffer_object.cpp
 	)
 	add_library(${PROJECT_NAME} STATIC ${SOURCE})
-endif(OPENCL_FOUND)
+	target_link_libraries(${PROJECT_NAME} OpenCL)
+endif(OPENCL)
