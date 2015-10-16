@@ -104,7 +104,7 @@ void cl::kernel::check_range(const work_range &range) const
 
 void cl::kernel::determine_range(work_range &range) const
 {
-	static const size_t def_size[] = {32, 8, 4, 2};
+	static const size_t def_size[] = {0, 64, 8, 4, 2};
 	int dim = range.get_dim();
 	std::vector<size_t> wg = range.get_local_size();
 	std::vector<size_t> gs = range.get_global_size();
@@ -113,19 +113,19 @@ void cl::kernel::determine_range(work_range &range) const
 	{
 		if(wg[i] == 0)
 		{
-			wg[i] = def_size[dim < 3 ? dim : 3];
+			wg[i] = def_size[dim < 4 ? dim : 4];
 		}
 	}
 	
-	range.set_local_size(wg.data());
+	range.set_local_size(wg);
 	
-	// ceil global size to be multiple of work group
+	// set global size to be multiple of work group
 	for(int i = 0; i < dim; ++i)
 	{
-		gs[i] = ceil(double(gs[i])/wg[i])*wg[i];
+		gs[i] = ((gs[i] - 1)/wg[i] + 1)*wg[i];
 	}
 	
-	range.set_global_size(gs.data());
+	range.set_global_size(gs);
 }
 
 #ifndef CL4U_NO_PROFILING
