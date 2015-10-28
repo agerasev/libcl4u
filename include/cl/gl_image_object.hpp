@@ -67,9 +67,14 @@ public:
 		return _texture;
 	}
 	
-	virtual void bind_queue(cl_command_queue queue)
+	virtual void bind_queue(cl_command_queue queue) override
 	{
 		_queue = queue;
+	}
+	
+	virtual cl_command_queue get_queue() const override
+	{
+		return _queue;
 	}
 	
 	virtual cl_mem get_cl_mem() const override
@@ -77,14 +82,14 @@ public:
 		return _image;
 	}
 	
-	virtual void acquire() override
+	virtual void acquire() const override
 	{
 		if(_queue == 0)
 			throw exception("GL Image hasn't bound to a valid queue");
 		clEnqueueAcquireGLObjects(_queue, 1, &_image, 0, 0, 0);
 	}
 
-	virtual void release() override
+	virtual void release() const override
 	{
 		if(_queue == 0)
 			throw exception("GL Image hasn't bound to a valid queue");
