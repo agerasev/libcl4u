@@ -9,6 +9,7 @@ elseif (MSVC)
 endif()
 
 include_directories(include)
+include_directories(includer)
 
 set(SOURCE 
 	source/utility.cpp

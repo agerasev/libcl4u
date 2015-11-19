@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <includer.hpp>
+
 cl::program::build_exception::build_exception(const std::string &msg)
 	: cl::exception(msg.data())
 {
@@ -79,11 +81,17 @@ static std::vector<std::string> __find_kernels_in_source(const std::string &sour
 	return result;
 }
 
-cl::program::program(const std::string &filename, cl_context context, cl_device_id device_id) throw(exception)
+cl::program::program(cl_context context, cl_device_id device_id, const std::string &filename, const std::string &include_dir) throw(exception)
+    : _includer(filename, include_dir)
 {
 	cl_int err;
 	
-	std::string source = __load_source(filename);
+	std::string source = 
+#ifdef CL_NO_INCLUDER
+	  __load_source(filename);
+#else
+	  _includer.get_source();
+#endif
 	
 	const char *source_data = source.data();
 	size_t size = source.size();
@@ -104,7 +112,7 @@ cl::program::program(const std::string &filename, cl_context context, cl_device_
 	err = clBuildProgram(_program, 1, &device_id, nullptr, nullptr, nullptr);
 	if(err != CL_SUCCESS)
 	{
-		throw build_exception(__get_kernel_compilation_info(_program,device_id));
+		throw build_exception("compile errors:\n" + _includer.restore_location(__get_kernel_compilation_info(_program,device_id)));
 	}
 	
 #ifndef CL_NO_PARSING

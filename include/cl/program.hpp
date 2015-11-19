@@ -9,6 +9,8 @@
 #include "kernel.hpp"
 #include "map.hpp"
 
+#include <includer.hpp>
+
 namespace cl
 {
 class program
@@ -26,9 +28,10 @@ public:
 private:
 	cl_program _program;
 	map<kernel*> _kernel_map;
+	cl_includer _includer;
 	
 public:
-	program(const std::string &filename, cl_context context, cl_device_id device_id) throw(exception);
+	program(cl_context context, cl_device_id device_id, const std::string &filename, const std::string &include_dir = "") throw(exception);
 	~program();
 	
 	cl_program get_cl_program() const;

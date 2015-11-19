@@ -1,0 +1,3 @@
+[submodule "includer"]
+	path = includer
+	url = https://github.com/nthend/opencl-includer.git
