@@ -115,8 +115,10 @@ cl::program::program(const std::string &filename, cl_context context, cl_device_
 
 cl::program::~program()
 {
-	for(kernel *k : _kernel_map)
+	for(cl::kernel *k : _kernel_map) {
 		delete k;
+	}
+	
 	clReleaseProgram(_program);
 }
 
