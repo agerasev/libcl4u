@@ -1,6 +1,6 @@
 #pragma once
 
-#include <CL/cl.h>
+#include "opencl.hpp"
 
 #include "context.hpp"
 

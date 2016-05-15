@@ -1,14 +1,12 @@
 #pragma once
 
-#include <CL/cl.h>
+#include "opencl.hpp"
 
 #include "exception.hpp"
 #include "context.hpp"
 #include "image_object.hpp"
 
-#ifdef CL_GL_INTEROP
-
-#include <CL/cl_gl.h>
+// #include <CL/cl_gl.h>
 #include <GL/gl.h>
 
 namespace cl
@@ -45,9 +43,9 @@ public:
 		// TODO: free texture if error occured
 		
 		// Create a reference mem object in OpenCL from GL texture
-		_image = clCreateFromGLTexture2D(context, CL_MEM_READ_WRITE, gl_texture_target, 0, _texture, &err);
+		_image = clCreateFromGLTexture(context, CL_MEM_READ_WRITE, gl_texture_target, 0, _texture, &err);
 		if(err != CL_SUCCESS)
-			throw cl_exception("clCreateFromGLTexture2D",err);
+			throw cl_exception("clCreateFromGLTexture",err);
 		if(_image == nullptr)
 			throw exception("Failed to create OpenGL texture reference");
 	}
@@ -97,5 +95,3 @@ public:
 	}
 };
 }
-
-#endif // CL_GL_INTEROP

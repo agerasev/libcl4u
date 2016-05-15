@@ -81,10 +81,19 @@ static std::vector<std::string> __find_kernels_in_source(const std::string &sour
 	return result;
 }
 
-cl::program::program(cl_context context, cl_device_id device_id, const std::string &filename, const std::string &include_dir) throw(exception)
-    : _includer(filename, include_dir)
-{
+void cl::program::_free_inc() {
+	if(_inc != nullptr) {
+		delete static_cast<cl_includer*>(_inc);
+		_inc = nullptr;
+	}
+}
+
+cl::program::program(cl_context context, cl_device_id device_id, const std::string &filename, const std::string &include_dir) throw(exception) {
 	cl_int err;
+	
+	_free_inc();
+	_inc = static_cast<void*>(new cl_includer(filename, include_dir));
+	cl_includer &_includer = *static_cast<cl_includer*>(_inc);
 	
 	std::string source = 
 #ifdef CL_NO_INCLUDER
@@ -108,6 +117,7 @@ cl::program::program(cl_context context, cl_device_id device_id, const std::stri
 	source.clear();
 	
 	
+	
 	// build program
 	err = clBuildProgram(_program, 1, &device_id, nullptr, nullptr, nullptr);
 	if(err != CL_SUCCESS)
@@ -123,6 +133,8 @@ cl::program::program(cl_context context, cl_device_id device_id, const std::stri
 
 cl::program::~program()
 {
+	_free_inc();
+	
 	for(cl::kernel *k : _kernel_map) {
 		delete k;
 	}

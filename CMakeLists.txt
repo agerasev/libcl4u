@@ -1,15 +1,11 @@
 cmake_minimum_required(VERSION 2.6)
 project(cl4u)
 
-if (CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11 -Wall")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall")
-elseif (MSVC)
-	
-endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11 -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall")
 
 include_directories(include)
-include_directories(includer)
+include_directories(c-includer)
 
 set(SOURCE 
 	source/utility.cpp

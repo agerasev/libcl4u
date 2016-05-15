@@ -1,8 +1,9 @@
 #pragma once
 
+#include <cstdio>
 #include <map>
 
-#include <CL/cl.h>
+#include "opencl.hpp"
 
 #include "exception.hpp"
 #include "platform.hpp"
@@ -40,7 +41,12 @@ public:
 #endif // CL_GL_INTEROP
 	  _queue(_context,_device_id)
 	{
-		
+		size_t size;
+		clGetDeviceInfo(_device_id, CL_DEVICE_VERSION, 0, nullptr, &size);
+		char *data = new char[size];
+		clGetDeviceInfo(_device_id, CL_DEVICE_VERSION, size, data, nullptr);
+		printf("OpenCL version: %s\n", data);
+		delete[] data;
 	}
 	~session()
 	{

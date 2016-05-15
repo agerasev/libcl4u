@@ -1,5 +1,5 @@
 #pragma once
 
-#include <CL/cl.h>
+#include "opencl.hpp"
 
 const char *get_code_name(cl_int err);

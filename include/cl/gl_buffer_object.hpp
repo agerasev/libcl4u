@@ -3,9 +3,7 @@
 #include "exception.hpp"
 #include "proto_buffer_object.hpp"
 
-// #ifdef CL_GL_INTEROP
-
-#include <CL/cl_gl.h>
+// #include <CL/cl_gl.h>
 #include <GL/glew.h>
 
 namespace cl
@@ -78,5 +76,3 @@ public:
 	}
 };
 }
-
-// #endif // CL_GL_INTEROP

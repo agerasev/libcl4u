@@ -1,3 +1,3 @@
-[submodule "includer"]
-	path = includer
-	url = https://github.com/nthend/opencl-includer.git
+[submodule "c-includer"]
+	path = c-includer
+	url = https://github.com/nthend/c-includer.git

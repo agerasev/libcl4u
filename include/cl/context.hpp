@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <CL/cl.h>
+#include "opencl.hpp"
 
 #include "exception.hpp"
 

@@ -2,10 +2,6 @@
 
 #include "context.hpp"
 
-#ifdef CL_GL_INTEROP
-
-#include <CL/cl_gl.h>
-
 #ifdef __gnu_linux__
 #include <GL/glx.h>
 #endif
@@ -31,7 +27,7 @@ public:
 		// Find CL capable devices in the current GL context
 		std::vector<cl_device_id> device_ids;
 		size_t size;
-		void *func = clGetExtensionFunctionAddress("clGetGLContextInfoKHR");
+		void *func = clGetExtensionFunctionAddressForPlatform(platform_id, "clGetGLContextInfoKHR");
 		if(func == nullptr)
 			throw exception("Extension function 'clGetGLContextInfoKHR' address is NULL");
 		
@@ -55,4 +51,3 @@ public:
 	}
 };
 }
-#endif

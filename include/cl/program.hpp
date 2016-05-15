@@ -1,6 +1,6 @@
 #pragma once
 
-#include <CL/cl.h>
+#include "opencl.hpp"
 
 #include <vector>
 #include <string>
@@ -8,8 +8,6 @@
 #include "exception.hpp"
 #include "kernel.hpp"
 #include "map.hpp"
-
-#include <includer.hpp>
 
 namespace cl
 {
@@ -28,7 +26,8 @@ public:
 private:
 	cl_program _program;
 	map<kernel*> _kernel_map;
-	cl_includer _includer;
+	void *_inc = nullptr;
+	void _free_inc();
 	
 public:
 	program(cl_context context, cl_device_id device_id, const std::string &filename, const std::string &include_dir = "") throw(exception);
