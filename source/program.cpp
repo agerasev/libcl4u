@@ -29,6 +29,7 @@ static std::string __get_kernel_compilation_info(cl_program program, cl_device_i
 	return ret;
 }
 
+/*
 static std::string __load_source(const std::string &fn) throw(cl::exception)
 {
 	FILE *fp;
@@ -54,6 +55,7 @@ static std::string __load_source(const std::string &fn) throw(cl::exception)
 	
 	return ret;
 }
+*/
 
 static std::vector<std::string> __find_kernels_in_source(const std::string &source)
 {

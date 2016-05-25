@@ -23,10 +23,8 @@ private:
 	cl_event _event;
 	cl_command_queue _queue = 0;
 	
-#ifndef CL4U_NO_PROFILING
 	cl_uint _count = 0;
 	cl_ulong _time = 0;
-#endif // CL4U_NO_PROFILING
 	
 	struct unroll_data
 	{
@@ -73,7 +71,6 @@ private:
 	void check_range(const work_range &range) const;
 	void determine_range(work_range &range) const;
 	
-#ifndef CL4U_NO_PROFILING
 private:
 	cl_ulong measure_time();
 	
@@ -81,7 +78,6 @@ public:
 	cl_ulong get_time() const;
 	cl_uint get_count() const;
 	void clear_counter();
-#endif // CL4U_NO_PROFILING
 	
 public:
 	kernel(cl_program program, const std::string &name) throw(cl::exception);
@@ -131,10 +127,8 @@ public:
 		if(ret != CL_SUCCESS)
 			throw cl_exception("clEnqueueNDRangeKernel",ret);
 		
-#ifndef CL4U_NO_PROFILING
 		++_count;
 		_time += measure_time();
-#endif // CL4U_NO_PROFILING
 		
 		return this;
 	}
