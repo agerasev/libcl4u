@@ -15,14 +15,14 @@ public:
 	typedef std::pair<std::string,T> pair_type;
 	
 private:
-	map_type *_map;
+	map_type _map;
 	
 public:
 	map() {
-		_map = new map_type;
+		
 	}
 	~map() {
-		delete _map;
+		
 	}
 	
 	class iterator
@@ -115,12 +115,12 @@ public:
 	
 	iterator begin()
 	{
-		return iterator(_map->begin());
+		return iterator(_map.begin());
 	}
 	
 	const_iterator begin() const
 	{
-		return const_iterator(_map->cbegin());
+		return const_iterator(_map.cbegin());
 	}
 	
 	const_iterator cbegin() const
@@ -130,12 +130,12 @@ public:
 	
 	iterator end()
 	{
-		return iterator(_map->end());
+		return iterator(_map.end());
 	}
 	
 	const_iterator end() const
 	{
-		return const_iterator(_map->cend());
+		return const_iterator(_map.cend());
 	}
 	
 	const_iterator cend() const
@@ -145,27 +145,27 @@ public:
 	
 	void insert(const std::string &key, T elem)
 	{
-		_map->insert(pair_type(key,elem));
+		_map.insert(pair_type(key,elem));
 	}
 	
 	void insert(const pair_type &pair)
 	{
-		_map->insert(pair);
+		_map.insert(pair);
 	}
 	
 	iterator find(const std::string &key)
 	{
-		return iterator(_map->find(key));
+		return iterator(_map.find(key));
 	}
 	
 	const_iterator find(const std::string &key) const
 	{
-		return const_iterator(_map->find(key));
+		return const_iterator(_map.find(key));
 	}
 	
 	void remove(const std::string &key)
 	{
-		_map->erase(_map->find(key));
+		_map.erase(_map.find(key));
 	}
 	
 	T &operator [](const std::string &key) throw(cl::exception)

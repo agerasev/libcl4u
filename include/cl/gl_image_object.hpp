@@ -6,7 +6,7 @@
 #include "context.hpp"
 #include "image_object.hpp"
 
-// #include <CL/cl_gl.h>
+#include <CL/cl_gl.h>
 #include <GL/gl.h>
 
 namespace cl

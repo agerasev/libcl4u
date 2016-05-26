@@ -3,7 +3,7 @@
 #include "exception.hpp"
 #include "proto_buffer_object.hpp"
 
-// #include <CL/cl_gl.h>
+#include <CL/cl_gl.h>
 #include <GL/glew.h>
 
 namespace cl
