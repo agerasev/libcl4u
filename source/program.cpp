@@ -29,34 +29,6 @@ static std::string __get_kernel_compilation_info(cl_program program, cl_device_i
 	return ret;
 }
 
-/*
-static std::string __load_source(const std::string &fn) throw(cl::exception)
-{
-	FILE *fp;
-	size_t size;
-	char *source = NULL;
-	
-	fp = fopen(fn.data(),"r");
-	if(!fp)
-		throw cl::exception(std::string("Cannot open file '") + fn + std::string("'"));
-	
-	fseek(fp,0,SEEK_END);
-	size = ftell(fp);
-	fseek(fp,0,SEEK_SET);
-	
-	source = (char*)malloc(sizeof(char)*(size+1));
-	fread(source,1,size,fp);
-	source[size] = '\0';
-	
-	fclose(fp);
-	
-	std::string ret(source);
-	free(source);
-	
-	return ret;
-}
-*/
-
 static std::vector<std::string> __find_kernels_in_source(const std::string &source)
 {
 	std::string string;
@@ -85,7 +57,7 @@ static std::vector<std::string> __find_kernels_in_source(const std::string &sour
 
 void cl::program::_free_inc() {
 	if(_inc != nullptr) {
-		delete static_cast<cl_includer*>(_inc);
+		delete static_cast<includer*>(_inc);
 		_inc = nullptr;
 	}
 }
@@ -94,17 +66,12 @@ cl::program::program(cl_context context, cl_device_id device_id, const std::stri
 	cl_int err;
 	
 	_free_inc();
-	_inc = static_cast<void*>(new cl_includer(filename, include_dir));
-	cl_includer &_includer = *static_cast<cl_includer*>(_inc);
+	_inc = static_cast<void*>(new includer(filename, std::list<std::string>({include_dir})));
+	includer &_includer = *static_cast<includer*>(_inc);
 	
-	std::string source = 
-#ifdef CL_NO_INCLUDER
-	  __load_source(filename);
-#else
-	  _includer.get_source();
-#endif
+	const std::string &source = _includer.data();
 	
-	const char *source_data = source.data();
+	const char *source_data = source.c_str();
 	size_t size = source.size();
 	
 	// create program
@@ -116,15 +83,33 @@ cl::program::program(cl_context context, cl_device_id device_id, const std::stri
 	std::vector<std::string> kernel_names = __find_kernels_in_source(source);
 #endif // CL_NO_PARSING
 	
-	source.clear();
-	
-	
-	
 	// build program
 	err = clBuildProgram(_program, 1, &device_id, nullptr, nullptr, nullptr);
 	if(err != CL_SUCCESS)
 	{
-		throw build_exception("compile errors:\n" + _includer.restore_location(__get_kernel_compilation_info(_program,device_id)));
+		std::string result;
+		std::string string(__get_kernel_compilation_info(_program,device_id));
+		std::regex expr("<kernel>:(\\d*):(\\d*):");//, line_expr("line ([0123456789]*);");
+		std::smatch match;
+		while(std::regex_search(string,match,expr))
+		{
+			int gpos = std::stoi(std::string(match[1]));
+			int lpos;
+			std::string name;
+			if(_includer.locate(gpos, name, lpos)) {
+				result += match.prefix().str() + name + ":" + std::to_string(lpos) + ":" + std::string(match[2]) + ":";
+			} else {
+				fprintf(stderr, "includer: cannot locate line %d\n", gpos);
+				result += match.prefix().str() + std::string(match[0]);
+			}
+			
+			string = match.suffix().str();
+		}
+		result += string;
+		
+		//std::string result(__get_kernel_compilation_info(_program,device_id));
+		
+		throw build_exception("compile errors:\n" + result);
 	}
 	
 #ifndef CL_NO_PARSING
