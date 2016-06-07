@@ -16,7 +16,7 @@ cl::buffer_object::buffer_object(cl_context context, size_t size) throw(cl::exce
 }
 
 cl::buffer_object::buffer_object(const context &c_context, size_t c_size) throw(cl::exception)
-	: buffer_object(c_context.get_cl_context(),c_size)
+	: buffer_object(c_context.id(),c_size)
 {
 	
 }

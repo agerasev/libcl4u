@@ -49,8 +49,8 @@ public:
 		if(_image == nullptr)
 			throw exception("Failed to create OpenGL texture reference");
 	}
-	gl_image_object(context c_context, int width, int height) throw(exception)
-	  : gl_image_object(c_context.get_cl_context(),width,height)
+	gl_image_object(const context &c_context, int width, int height) throw(exception)
+	  : gl_image_object(c_context.id(),width,height)
 	{
 		
 	}

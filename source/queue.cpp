@@ -1,7 +1,6 @@
 #include <cl/queue.hpp>
 
-cl::queue::queue(cl_context __context, cl_device_id __device_id) throw(cl_exception)
-{
+cl::queue::queue(cl_context __context, cl_device_id __device_id) throw(cl_exception) {
 	cl_int err;
 #ifndef CL4U_NO_PROFILING
 	_queue = clCreateCommandQueue(__context, __device_id, CL_QUEUE_PROFILING_ENABLE, &err);
@@ -12,24 +11,20 @@ cl::queue::queue(cl_context __context, cl_device_id __device_id) throw(cl_except
 		throw cl_exception("clCreateCommandQueue",err);
 }
 
-cl::queue::queue(const context &__context, cl_device_id __device_id) throw(cl_exception)
-	: queue(__context.get_cl_context(),__device_id)
-{
+cl::queue::queue(const context &__context, const device &__device) throw(cl_exception)
+	: queue(__context.id(),__device.id()) {
 	
 }
 
-cl::queue::~queue()
-{
+cl::queue::~queue() {
 	clFinish(_queue);
 	clReleaseCommandQueue(_queue);
 }
 
-void cl::queue::flush()
-{
+void cl::queue::flush() {
 	clFlush(_queue);
 }
 
-cl_command_queue cl::queue::get_cl_command_queue() const
-{
+cl_command_queue cl::queue::get_cl_command_queue() const {
 	return _queue;
 }

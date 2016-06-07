@@ -3,6 +3,7 @@
 #include "opencl.hpp"
 
 #include "context.hpp"
+#include "device.hpp"
 
 namespace cl
 {
@@ -13,7 +14,7 @@ private:
 	
 public:
 	queue(cl_context __context, cl_device_id __device_id) throw(cl_exception);
-	queue(const context &__context, cl_device_id __device_id) throw(cl_exception);
+	queue(const context &__context, const device &__device) throw(cl_exception);
 	~queue();
 	
 	void flush();

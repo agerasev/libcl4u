@@ -8,9 +8,6 @@
 #include "exception.hpp"
 #include "platform.hpp"
 #include "context.hpp"
-#ifdef CL_GL_INTEROP
-#include "gl_context.hpp"
-#endif
 #include "queue.hpp"
 
 #include "kernel.hpp"
@@ -22,31 +19,22 @@ class session
 {
 private:
 	platform _platform;
-	cl_device_id _device_id;
-#ifdef CL_GL_INTEROP
-	gl_context _context;
-#else
-	context _context;
-#endif
+	device   _device;
+	context  _context;
+
 	queue _queue;
 	
 public:
-	session() throw(exception) :
-	  _platform(),
-	  _device_id(_platform.get_default_device()),
-#ifdef CL_GL_INTEROP
-	  _context(_platform.get_id()),
-#else // CL_GL_INTEROP
-	  _context(_device_id),
-#endif // CL_GL_INTEROP
-	  _queue(_context,_device_id)
+	session(int platform_no = 0) throw(exception) :
+		_platform(platform::get(platform_no)),
+		_device(device::get(&_platform)),
+		_context(&_device),
+		_queue(_context, _device)
 	{
-		size_t size;
-		clGetDeviceInfo(_device_id, CL_DEVICE_VERSION, 0, nullptr, &size);
-		char *data = new char[size];
-		clGetDeviceInfo(_device_id, CL_DEVICE_VERSION, size, data, nullptr);
-		printf("OpenCL version: %s\n", data);
-		delete[] data;
+		printf("CL_PLATFORM_VERSION: %s\n", _platform.info(CL_PLATFORM_VERSION).c_str());
+		printf("CL_PLATFORM_NAME: %s\n",    _platform.info(CL_PLATFORM_NAME).c_str());
+		printf("CL_PLATFORM_VENDOR: %s\n",  _platform.info(CL_PLATFORM_VENDOR).c_str());
+		fflush(stdout);
 	}
 	~session()
 	{
@@ -58,9 +46,9 @@ public:
 		return _platform;
 	}
 	
-	cl_device_id get_device_id()
+	device &get_device()
 	{
-		return _device_id;
+		return _device;
 	}
 	
 	context &get_context()
