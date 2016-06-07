@@ -15,6 +15,8 @@ include_directories(c-includer)
 set(SOURCE 
 	source/utility.cpp
 	source/exception.cpp
+	source/platform.cpp
+	source/device.cpp
 	source/queue.cpp
 	source/work_range.cpp
 	source/buffer_object.cpp

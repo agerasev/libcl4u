@@ -9,6 +9,7 @@
 #include "platform.hpp"
 #include "context.hpp"
 #include "queue.hpp"
+#include "features.hpp"
 
 #include "kernel.hpp"
 #include "buffer_object.hpp"
@@ -25,9 +26,9 @@ private:
 	queue _queue;
 	
 public:
-	session(int platform_no = 0) throw(exception) :
+	session(int platform_no = 0, int features = 0) throw(exception) :
 		_platform(platform::get(platform_no)),
-		_device(device::get(&_platform)),
+		_device(features & feature::GL_INTEROP ? device::get_gl(&_platform) : device::get(&_platform)),
 		_context(&_device),
 		_queue(_context, _device)
 	{
