@@ -26,12 +26,13 @@ public:
 	static std::list<device> get_all(platform *p, cl_device_type t = CL_DEVICE_TYPE_ALL);
 	static device get(platform *p, cl_device_type t = CL_DEVICE_TYPE_DEFAULT, int no = 0) throw(exception);
 	static std::vector<cl_context_properties> get_gl_properties(platform *p) throw(exception);
-	
+#ifndef CL_NO_GL_INTEROP
 	static cl_int (*get_gl_function(platform *p))(const cl_context_properties*,cl_gl_context_info,size_t,void*,size_t*) throw(exception);
 	static int get_count_gl(platform *p) throw(exception);
 	static bool is_gl_interop_supported(platform *p);
 	static std::vector<cl_device_id> get_ids_gl(platform *p) throw(exception);
 	static std::list<device> get_all_gl(platform *p) throw(exception);
 	static device get_gl(platform *p, int no = 0) throw(exception);
+#endif
 };
 }

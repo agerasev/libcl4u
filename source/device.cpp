@@ -59,6 +59,8 @@ device device::get(platform *p, cl_device_type t, int no) throw(exception) {
 	return device(p, ids[0]);
 }
 
+#ifndef CL_NO_GL_INTEROP
+
 std::vector<cl_context_properties> device::get_gl_properties(platform *p) throw(exception) {
 	std::vector<cl_context_properties> props;
 #ifdef __gnu_linux__
@@ -136,3 +138,5 @@ device device::get_gl(platform *p, int no) throw(exception) {
 		no = 0;
 	return device(p, ids[no], feature::GL_INTEROP);
 }
+
+#endif

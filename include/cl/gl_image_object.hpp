@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef CL_NO_GL_INTEROP
+
 #include "opencl.hpp"
 
 #include "exception.hpp"
@@ -95,3 +97,5 @@ public:
 	}
 };
 }
+
+#endif

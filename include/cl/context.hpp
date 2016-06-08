@@ -19,9 +19,13 @@ public:
 	context(device *dev) throw(exception) : _device(dev) {
 		cl_int err;
 		cl_device_id devid = dev->id();
+#ifndef CL_NO_GL_INTEROP
 		if(dev->features() & feature::GL_INTEROP) {
 			_context = clCreateContext(device::get_gl_properties(dev->get_platform()).data(), 1, &devid, nullptr, nullptr, &err);
 		} else {
+#else
+		{
+#endif
 			_context = clCreateContext(nullptr, 1, &devid, nullptr, nullptr, &err);
 		}
 		if(err != CL_SUCCESS)

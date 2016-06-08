@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef CL_NO_GL_INTEROP
+
 #include "exception.hpp"
 #include "proto_buffer_object.hpp"
 
@@ -76,3 +78,5 @@ public:
 	}
 };
 }
+
+#endif

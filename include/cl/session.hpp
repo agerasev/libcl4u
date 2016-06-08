@@ -28,7 +28,11 @@ private:
 public:
 	session(int platform_no = 0, int features = 0) throw(exception) :
 		_platform(platform::get(platform_no)),
+#ifndef CL_NO_GL_INTEROP
 		_device(features & feature::GL_INTEROP ? device::get_gl(&_platform) : device::get(&_platform)),
+#else
+		_device(device::get(&_platform)),
+#endif
 		_context(&_device),
 		_queue(_context, _device)
 	{
